@@ -1,13 +1,6 @@
 import { ProdutoService } from "../service/produto_service";
+import { errorProcessing } from "../error/validation_error";
 
-function errorProcessing(error: any) {
-    if (error && (error as any).statusCode !== undefined) {
-        const statusCode = (error as any).statusCode;
-        console.error(`Erro de validação: ${error.message} (Status Code: ${statusCode})`);
-    } else {
-        console.error(`Erro inesperado: ${error.message}`);
-    }
-}
 
 export class ProdutoController {
     private produtoService: ProdutoService;

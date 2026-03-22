@@ -1,11 +1,15 @@
-interface Produto {
-    id: number;
-    nome: string;
-    preco: number;
-}
+import { ProdutoSetter, Produto } from "../interface/produto_interface";
 
-export class ProdutoRepository {
+export class ProdutoRepository implements ProdutoSetter{
     private produtos: Produto[] = [];
+
+    constructor(newProdutos: Produto[]){
+        this.produtos = newProdutos;
+    }
+
+    public setProdutos(produtos: Produto[]): void {
+        this.produtos = produtos;
+    }
 
     public adicionarProduto(produto: Produto): void {
         this.produtos.push(produto);
