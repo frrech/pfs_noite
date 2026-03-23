@@ -24,7 +24,10 @@ export class ProdutoRepository implements ProdutoSetter{
     }
 
     public removerProduto(id: number): void {
-        this.produtos = this.produtos.filter(produto => produto.id !== id);
+        const index = this.produtos.findIndex(produto => produto.id === id);
+        if (index !== -1) {
+            this.produtos.splice(index, 1);
+        }
     }
 
     public atualizarProduto(id: number, produtoAtualizado: Produto): void {
