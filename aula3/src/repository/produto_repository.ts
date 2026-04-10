@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Produto } from "../model/produto";
 import { ProdutoRepositoryInterface } from "./produto_repository.interface";
 
@@ -11,6 +12,23 @@ export class ProdutoRepository implements ProdutoRepositoryInterface {
         }
 
         return Promise.resolve(this.produtos.push(produto));
+=======
+import { ProdutoSetter, Produto } from "../interface/produto_interface";
+
+export class ProdutoRepository implements ProdutoSetter{
+    private produtos: Produto[] = [];
+
+    constructor(newProdutos: Produto[]){
+        this.produtos = newProdutos;
+    }
+
+    public setProdutos(produtos: Produto[]): void {
+        this.produtos = produtos;
+    }
+
+    public adicionarProduto(produto: Produto): void {
+        this.produtos.push(produto);
+>>>>>>> bfce51b1bb518410bbe62ad982c7381d695d14c1
     }
 
     public async listarProdutos(): Promise<Produto[]> {
@@ -21,9 +39,17 @@ export class ProdutoRepository implements ProdutoRepositoryInterface {
         return Promise.resolve(this.produtos.find(produto => produto.id === id));
     }
 
+<<<<<<< HEAD
     public async removerProduto(id: number): Promise<void> {
         this.produtos = this.produtos.filter(produto => produto.id !== id);
         return Promise.resolve();
+=======
+    public removerProduto(id: number): void {
+        const index = this.produtos.findIndex(produto => produto.id === id);
+        if (index !== -1) {
+            this.produtos.splice(index, 1);
+        }
+>>>>>>> bfce51b1bb518410bbe62ad982c7381d695d14c1
     }
 
     public async atualizarProduto(id: number, nome: string, preco: number): Promise<void> {

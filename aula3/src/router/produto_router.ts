@@ -1,5 +1,6 @@
 import { error } from "console";
 import { ProdutoController } from "../controller/produto_controller";
+<<<<<<< HEAD
 import express, { Express } from "express";
 import multer from "multer";
 
@@ -8,6 +9,9 @@ const app = express();
 const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+=======
+import { Express } from "express";
+>>>>>>> bfce51b1bb518410bbe62ad982c7381d695d14c1
 
 function errorProcessing(error: any): void {
     if (error instanceof Error) {
@@ -19,17 +23,19 @@ function errorProcessing(error: any): void {
             console.error(`Erro inesperado: ${error}`);
 }
 export class ProdutoRouter {
+    private app: Express;
     private produtoController: ProdutoController;
 
-    constructor(produtoController: ProdutoController) {
+    constructor(app: Express, produtoController: ProdutoController) {
+        this.app = app;
         this.produtoController = produtoController;
     }
 
     public configurarRotas(): void {
-        app.post('/produtos', (req, res) => this.produtoController.adicionarProduto(req, res));
-        app.get('/produtos', (req, res) => this.produtoController.listarProdutos(req, res));
-        app.get('/produtos/:id', (req, res) => this.produtoController.buscarProdutoPorId(req, res));
-        app.delete('/produtos/:id', (req, res) => this.produtoController.removerProduto(req, res));
-        app.put('/produtos/:id', (req, res) => this.produtoController.atualizarProduto(req, res));
+        this.app.post('/produtos', (req, res) => this.produtoController.adicionarProduto(req, res));
+        this.app.get('/produtos', (req, res) => this.produtoController.listarProdutos(req, res));
+        this.app.get('/produtos/:id', (req, res) => this.produtoController.buscarProdutoPorId(req, res));
+        this.app.delete('/produtos/:id', (req, res) => this.produtoController.removerProduto(req, res));
+        this.app.put('/produtos/:id', (req, res) => this.produtoController.atualizarProduto(req, res));
     }
 }
