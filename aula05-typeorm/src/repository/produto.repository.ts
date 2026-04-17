@@ -43,4 +43,24 @@ export class ProdutoRepository {
         }
         return null;
     }
+
+    depositar(id: number, quantidade: number): Promise<Produto | null> {
+        return this.findById(id).then(produto => {
+            if (!produto) {
+                return null;
+            }
+            produto.quantidade += quantidade;
+            return this.repository.save(produto);
+        });
+    }
+
+    retirar(id: number, quantidade: number): Promise<Produto | null> {
+        return this.findById(id).then(produto => {
+            if (!produto) {
+                return null;
+            }
+            produto.quantidade -= quantidade;
+            return this.repository.save(produto);
+        });
+    }
 }

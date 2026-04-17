@@ -71,4 +71,36 @@ export class ProdutoService {
         }
         await this.produtoRepository.update(produto.id, produto);
     }
+
+    public async depositar(id: number, quantidade: number): Promise<Produto> {
+        if (quantidade <= 0) {
+            const error = new ValidationError("A quantidade a ser depositada deve ser um número positivo.", 400); // Bad Request
+            throw error;
+        }
+        return this.produtoRepository.depositar(id, quantidade).then(produto => {
+            if (!produto) {
+                const error = new ValidationError(`Produto com id ${id} não encontrado.`, 404); // NOT FOUND
+                throw error;
+            }
+            return produto;
+        });
+    }
+
+    public async retirar(id: number, quantidade: number): Promise<Produto> {
+        if (quantidade <= 0) {
+            const error = new ValidationError("A quantidade a ser retirada deve ser um número positivo.", 400); // Bad Request
+            throw error;
+        }
+        return this.produtoRepository.retirar(id, quantidade).then(produto => {
+            if (!produto) {
+                const error = new ValidationError(`Produto com id ${id} não encontrado.`, 404); // NOT FOUND
+                throw error;
+            }
+            if (produto.quantidade < 0) {
+                const error = new ValidationError("A quantidade do produto não pode ser negativa.", 400); // Bad Request
+                throw error;
+            }
+            return produto;
+        });
+    }
 }

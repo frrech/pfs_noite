@@ -1,4 +1,3 @@
-import { Produto } from "../entity/Produto";
 import { ProdutoController } from "../controller/produto.controller";
 
 export class ProdutoRouter {
@@ -14,6 +13,8 @@ export class ProdutoRouter {
         app.get("/produtos/:id", (req: any, res: any) => this.produtoController.buscarProdutoPorId(req, res));
         app.delete("/produtos/:id", (req: any, res: any) => this.produtoController.removerProduto(req, res));
         app.put("/produtos/:id", (req: any, res: any) => this.produtoController.atualizarProduto(req, res));
+        app.post("/produtos/:id/depositar", (req: any, res: any) => this.produtoController.depositar(req, res));
+        app.post("/produtos/:id/retirar", (req: any, res: any) => this.produtoController.retirar(req, res));
     }
 
 }
