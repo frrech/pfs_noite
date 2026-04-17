@@ -1,6 +1,8 @@
 import { PedidoService } from "../service/pedido.service";
 import { Pedidos } from "../entity/Pedidos";
 import { errorProcessing } from "../error/error_processing";
+import { User } from "../entity/User";
+import { Produto } from "../entity/Produto";
 
 export class PedidoController {
     private pedidoService: PedidoService;
@@ -51,8 +53,8 @@ export class PedidoController {
     public async atualizarPedido(req: any, res: any): Promise<void> {
         try {
             const { id } = req.params;
-            const { produto } = req.body;
-            await this.pedidoService.atualizarPedido(id, new Pedidos(produto));
+            const { produto, user, descricao } = req.body;
+            await this.pedidoService.atualizarPedido(id, new Pedidos(descricao, user as User, produto as Produto));
             console.log("Pedido atualizado com sucesso.");
         } catch (error: any) {
             errorProcessing(error);
