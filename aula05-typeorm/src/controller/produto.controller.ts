@@ -1,6 +1,6 @@
 import { ProdutoService } from "../service/produto.service";
 import { Produto } from "../entity/Produto";
-import { errorProcessing } from "../error/error_processing";
+import { handleRequest } from "../utils/request_handler";
 
 export class ProdutoController {
     private produtoService: ProdutoService;
@@ -10,74 +10,35 @@ export class ProdutoController {
     }
 
     public async adicionarProduto(req: any, res: any): Promise<void> {
-        try{
-            const { id, nome, preco, quantidade, categoria } = req.body;
-            await this.produtoService.adicionarProduto({ id, nome, preco, quantidade, categoria } as Produto);
+        await handleRequest(req, res, async () => {
+            const { nome, preco, categoria, quantidade } = req.body;
+            const produto = new Produto(nome, preco, categoria, quantidade);
+            await this.produtoService.adicionarProduto(produto);
             console.log("Produto adicionado com sucesso.");
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        });
     }
 
     public async listarProdutos(req: any, res: any): Promise<void> {
-        try {
-            const produtos = await this.produtoService.listarProdutos();
-            console.log("Produtos:", produtos);
-        } catch (error: any) {
-            console.error(`Erro inesperado: ${error.message}`);
-        }
+        await handleRequest(req, res, () => this.produtoService.listarProdutos(), 200);
     }
 
     public async buscarProdutoPorId(req: any, res: any): Promise<void> {
-        try {
-            const { id } = req.params;
-            const produto = await this.produtoService.buscarProdutoPorId(id);
-            console.log("Produto encontrado:", produto);
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        await handleRequest(req, res, () => this.produtoService.buscarProdutoPorId(Number(req.params.id)), 200);
     }
 
     public async removerProduto(req: any, res: any): Promise<void> {
-        try {
-            const { id } = req.params;
-            await this.produtoService.removerProduto(id);
-            console.log("Produto removido com sucesso.");
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        await handleRequest(req, res, () => this.produtoService.removerProduto(Number(req.params.id)), 200);
     }
 
     public async atualizarProduto(req: any, res: any): Promise<void> {
-        try {
-            const { id } = req.params;
-            const { nome, preco, categoria, quantidade } = req.body;
-            await this.produtoService.atualizarProduto(id, new Produto(nome, preco, categoria, quantidade));
-            console.log("Produto atualizado com sucesso.");
-        } catch (error: any) {
-            errorProcessing(error);
-        }
-    }
-
-    public async retirar(req: any, res: any): Promise<void> {
-        try {
-            const { id } = req.params;
-            const { quantidade } = req.body;
-            const produtoAtualizado = await this.produtoService.retirar(id, quantidade);
-            console.log("Produto atualizado após retirada:", produtoAtualizado);
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        await handleRequest(req, res, () => this.produtoService.atualizarProduto(Number(req.params.id), { ...req.body } as Produto), 200);
     }
 
     public async depositar(req: any, res: any): Promise<void> {
-        try {
-            const { id } = req.params;
-            const { quantidade } = req.body;
-            const produtoAtualizado = await this.produtoService.depositar(id, quantidade);
-            console.log("Produto atualizado após depósito:", produtoAtualizado);
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        await handleRequest(req, res, () => this.produtoService.depositar(Number(req.params.id), Number(req.body.quantidade)), 200);
+    }
+
+    public async retirar(req: any, res: any): Promise<void> {
+        await handleRequest(req, res, () => this.produtoService.retirar(Number(req.params.id), Number(req.body.quantidade)), 200);
     }
 }

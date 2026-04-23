@@ -14,6 +14,20 @@ export class UserService {
         return name.trim() === "" || email.trim() === "";
     }
 
+    private validateId(id: number): void {
+        if (id <= 0) {
+            throw new ValidationError("O ID do usuário deve ser um número positivo.", 400);
+        }
+    }
+
+    private async validateUserExists(id: number): Promise<User> {
+        const user = await this.userRepository.findById(id);
+        if (!user) {
+            throw new ValidationError(`Usuário com id ${id} não encontrado.`, 404);
+        }
+        return user;
+    }
+
     public async adicionarUser(user: User): Promise<void> {
         const { name, email } = user;
 
@@ -29,35 +43,19 @@ export class UserService {
     }
 
     public async buscarUserPorId(id: number) {
-        if (id <= 0) {
-            throw new ValidationError("O ID do usuário deve ser um número positivo.", 400); // Bad Request
-        }
-        const user = await this.userRepository.findById(id);
-        if (!user) {
-            throw new ValidationError(`Usuário com id ${id} não encontrado.`, 404); // NOT FOUND
-        }
-        return user;
+        this.validateId(id);
+        return await this.validateUserExists(id);
     }
 
     public async removerUser(id: number): Promise<void> {
-        if (id <= 0) {
-            throw new ValidationError("O ID do usuário deve ser um número positivo.", 400); // Bad Request
-        }
-        const user = await this.userRepository.findById(id);
-        if (!user) {
-            throw new ValidationError(`Usuário com id ${id} não encontrado.`, 404); // NOT FOUND
-        }
-        await this.userRepository.delete(user.id);
+        this.validateId(id);
+        await this.validateUserExists(id);
+        await this.userRepository.delete(id);
     }
 
     public async atualizarUser(id: number, user: User): Promise<void> {
-        if (id <= 0) {
-            throw new ValidationError("O ID do usuário deve ser um número positivo.", 400); // Bad Request
-        }
-        const existingUser = await this.userRepository.findById(id);
-        if (!existingUser) {
-            throw new ValidationError(`Usuário com id ${id} não encontrado.`, 404); // NOT FOUND
-        }
+        this.validateId(id);
+        await this.validateUserExists(id);
         const { name, email } = user;
         if (this.verificarUser(name, email)) {
             throw new ValidationError("Nome e email são obrigatórios");
@@ -66,19 +64,14 @@ export class UserService {
     }
 
     public async adicionarPedido(userId: number, pedido: Pedidos): Promise<void> {
-        if (userId <= 0) {
-            throw new ValidationError("O ID do usuário deve ser um número positivo.", 400); // Bad Request
-        }
-        const user = await this.userRepository.findById(userId);
-        if (!user) {
-            throw new ValidationError(`Usuário com id ${userId} não encontrado.`, 404); // NOT FOUND
-        }
+        this.validateId(userId);
+        await this.validateUserExists(userId);
         if (!pedido || !pedido.produto) {
-            throw new ValidationError("O pedido deve conter pelo menos um produto.", 400); // Bad Request
+            throw new ValidationError("O pedido deve conter pelo menos um produto.", 400);
         }
-            if (pedido.total <= 0) {
-                throw new ValidationError("O total do pedido deve ser um número positivo.", 400); // Bad Request
-            }
-            await this.userRepository.addPedido(userId, pedido);
+        if (pedido.total <= 0) {
+            throw new ValidationError("O total do pedido deve ser um número positivo.", 400);
+        }
+        await this.userRepository.addPedido(userId, pedido);
     }
 }

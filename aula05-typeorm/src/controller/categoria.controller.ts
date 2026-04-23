@@ -1,6 +1,6 @@
 import { CategoriaService } from "../service/categoria.service";
 import { Categoria } from "../entity/Categoria";
-import { errorProcessing } from "../error/error_processing";
+import { handleRequest } from "../utils/request_handler";
 
 export class CategoriaController {
     private categoriaService: CategoriaService;
@@ -9,47 +9,22 @@ export class CategoriaController {
     }
 
     public async listarCategorias(req: any, res: any): Promise<void> {
-        try {
-            const categorias = await this.categoriaService.findAll();
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        await handleRequest(req, res, () => this.categoriaService.findAll(), 200);
     }
 
     public async buscarCategoriaPorId(req: any, res: any): Promise<void> {
-        try {
-            const { id } = req.params;
-            const categoria = await this.categoriaService.findById(Number(id));
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        await handleRequest(req, res, () => this.categoriaService.findById(Number(req.params.id)), 200);
     }
 
     public async criarCategoria(req: any, res: any): Promise<void> {
-        try {
-            const { id, nome } = req.body;
-            const novaCategoria = await this.categoriaService.create({ id, nome } as Categoria);
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        await handleRequest(req, res, () => this.categoriaService.create({ ...req.body } as Categoria), 201);
     }
 
     public async atualizarCategoria(req: any, res: any): Promise<void> {
-        try {
-            const { id } = req.params;
-            const { nome } = req.body;
-            const categoriaAtualizada = await this.categoriaService.update(Number(id), { nome });
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        await handleRequest(req, res, () => this.categoriaService.update(Number(req.params.id), { ...req.body }), 200);
     }
 
     public async deletarCategoria(req: any, res: any): Promise<void> {
-        try {
-            const { id } = req.params;
-            const sucesso = await this.categoriaService.delete(Number(id));
-        } catch (error: any) {
-            errorProcessing(error);
-        }
+        await handleRequest(req, res, () => this.categoriaService.delete(Number(req.params.id)), 200);
     }
 }

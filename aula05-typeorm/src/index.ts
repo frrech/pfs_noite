@@ -11,8 +11,14 @@ function main() {
     AppDataSource.initialize().then(() => {
         console.log("Conexão com o banco de dados estabelecida.");
         app.use(express.json());
-        app.use('/produtos', produtoRouter.setupRoutes(app));
-        app.use('/categorias', categoriaRouter.setupRoutes(app));
+        app.use('/produtos', Injector.createProdutoRouter().setupRoutes(app));
+        app.use('/categorias', Injector.createCategoriaRouter().setupRoutes(app));
+        app.use('/users', Injector.createUserRouter().setupRoutes(app));
+        app.use('/pedidos', Injector.createPedidoRouter().setupRoutes(app));
+        app.use((err: any, req: any, res: any) => {
+            console.error("Erro não tratado:", err);
+            res.status(500).json({ error: "Ocorreu um erro inesperado." });
+        });
         const PORT = 3000;
         app.listen(PORT, () => {
             console.log(`Servidor rodando na porta ${PORT}.`);

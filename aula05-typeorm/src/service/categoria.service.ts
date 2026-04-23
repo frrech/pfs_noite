@@ -8,6 +8,20 @@ export class CategoriaService {
         this.categoriaRepository = categoriaRepository || new CategoriaRepository();
     }
 
+    private validateId(id: number): void {
+        if (id <= 0) {
+            throw new ValidationError("O ID da categoria deve ser um número positivo.", 400);
+        }
+    }
+
+    private async validateCategoriaExists(id: number): Promise<Categoria> {
+        const categoria = await this.categoriaRepository.findById(id);
+        if (!categoria) {
+            throw new ValidationError(`Categoria com id ${id} não encontrada.`, 404);
+        }
+        return categoria;
+    }
+
     async findAll(): Promise<Categoria[]> {
         try {
             return await this.categoriaRepository.findAll();
@@ -17,33 +31,36 @@ export class CategoriaService {
     }
 
     async findById(id: number): Promise<Categoria | null> {
-        if (id <= 0) {
-            throw new ValidationError("O ID da categoria deve ser um número positivo.", 400);
-        }
+        this.validateId(id);
         return this.categoriaRepository.findById(id);
     }
 
     async create(categoria: Categoria): Promise<Categoria> {
-        if (categoria.id && categoria.id <= 0) {
-            throw new ValidationError("O ID da categoria deve ser um número positivo.", 400);
+        this.validateId(categoria.id);
+        if (await this.categoriaRepository.findById(categoria.id)) {
+            throw new ValidationError(`Categoria com id ${categoria.id} já existe.`, 409); // Conflict
         }
         return this.categoriaRepository.create(categoria);
     }
 
     async update(id: number, categoria: Partial<Categoria>): Promise<Categoria | null> {
-        if (id <= 0) {
-            throw new ValidationError("O ID da categoria deve ser um número positivo.", 400);
-        }
-        if (categoria.id && categoria.id <= 0) {
-            throw new ValidationError("O ID da categoria deve ser um número positivo.", 400);
+        this.validateId(id);
+        await this.validateCategoriaExists(id);
+        if (categoria.id) {
+            this.validateId(categoria.id);
+            if (categoria.id !== id) {
+                throw new ValidationError("O ID da categoria não pode ser alterado.", 400);
+            }
+        } 
+        if (categoria.nome && categoria.nome.trim() === "") {
+            throw new ValidationError("O nome da categoria é obrigatório.", 400);
         }
         return this.categoriaRepository.update(id, categoria);
     }
 
     async delete(id: number): Promise<boolean> {
-        if (id <= 0) {
-            throw new ValidationError("O ID da categoria deve ser um número positivo.", 400);
-        }
-        return this.categoriaRepository.delete(id);
+        this.validateId(id);
+        await this.validateCategoriaExists(id);
+        return await this.categoriaRepository.delete(id);
     }
 }

@@ -6,17 +6,61 @@ import { CategoriaController } from "./controller/categoria.controller";
 import { CategoriaRepository } from "./repository/categoria.repository";
 import { CategoriaService } from "./service/categoria.service";
 import { CategoriaRouter } from "./router/categoria.router";
+import { UserController } from "./controller/user.controller";
+import { UserRepository } from "./repository/user.repository";
+import { UserService } from "./service/user.service";
+import { UserRouter } from "./router/user.router";
+import { PedidoController } from "./controller/pedido.controller";
+import { PedidoRepository } from "./repository/pedido.repository";
+import { PedidoService } from "./service/pedido.service";
+import { PedidoRouter } from "./router/pedido.router";
+
 export class Injector {
-    public static createProdutoRouter(): ProdutoRouter {
-        const produtoRepository = new ProdutoRepository();
-        const produtoService = new ProdutoService(produtoRepository);
-        const produtoController = new ProdutoController(produtoService);
-        return new ProdutoRouter(produtoController);
+    private static createRouter<TRouter, TController, TService, TRepository>(
+        repositoryCtor: { new (): TRepository },
+        serviceCtor: { new (repository: TRepository): TService },
+        controllerCtor: { new (service: TService): TController },
+        routerCtor: { new (controller: TController): TRouter }
+    ): TRouter {
+        const repository = new repositoryCtor();
+        const service = new serviceCtor(repository);
+        const controller = new controllerCtor(service);
+        return new routerCtor(controller);
     }
+
+    public static createProdutoRouter(): ProdutoRouter {
+        return this.createRouter(
+            ProdutoRepository,
+            ProdutoService,
+            ProdutoController,
+            ProdutoRouter
+        );
+    }
+
     public static createCategoriaRouter(): CategoriaRouter {
-        const categoriaRepository = new CategoriaRepository();
-        const categoriaService = new CategoriaService(categoriaRepository);
-        const categoriaController = new CategoriaController(categoriaService);
-        return new CategoriaRouter(categoriaController);
+        return this.createRouter(
+            CategoriaRepository,
+            CategoriaService,
+            CategoriaController,
+            CategoriaRouter
+        );
+    }
+
+    public static createUserRouter(): UserRouter {
+        return this.createRouter(
+            UserRepository,
+            UserService,
+            UserController,
+            UserRouter
+        );
+    }
+
+    public static createPedidoRouter(): PedidoRouter {
+        return this.createRouter(
+            PedidoRepository,
+            PedidoService,
+            PedidoController,
+            PedidoRouter
+        );
     }
 }
