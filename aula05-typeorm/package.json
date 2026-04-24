@@ -15,5 +15,9 @@
        "reflect-metadata": "^0.1.13",
        "typeorm": "^0.3.12"
    },
-   "scripts": {}
+   "scripts": {
+         "start": "ts-node src/index.ts",
+         "build": "tsc",
+         "dev": "nodemon --watch src --exec ts-node src/index.ts"
+   }
 }
