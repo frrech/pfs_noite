@@ -14,6 +14,8 @@ import { PedidoController } from "./controller/pedido.controller";
 import { PedidoRepository } from "./repository/pedido.repository";
 import { PedidoService } from "./service/pedido.service";
 import { PedidoRouter } from "./router/pedido.router";
+import { AuthController } from "./controller/auth.controller";
+import { AuthRouter } from "./router/auth.router";
 
 export class Injector {
     private static createRouter<TRouter, TController, TService, TRepository>(
@@ -26,6 +28,11 @@ export class Injector {
         const service = new serviceCtor(repository);
         const controller = new controllerCtor(service);
         return new routerCtor(controller);
+    }
+
+    public static createAuthRouter(): AuthRouter {
+        const authController = new AuthController();
+        return new AuthRouter(authController);
     }
 
     public static createProdutoRouter(): ProdutoRouter {

@@ -11,7 +11,7 @@ export class Pedidos {
     @Column()
     descricao: string
 
-    @ManyToOne(() => Produto, produto => produto.id)
+    @ManyToOne(() => Produto, produto => produto.pedidos)
     @JoinColumn({ name: "produto_id" })
     produto: Produto;
 

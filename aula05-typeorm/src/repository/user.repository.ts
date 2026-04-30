@@ -24,6 +24,10 @@ export class UserRepository {
         return null;
     }
 
+    async findByEmail(email: string): Promise<User | null> {
+        return await this.repository.findOne({ where: { email }, relations: ["pedidos"] });
+    }
+
     async delete(id: number): Promise<void> {
         if (id && id > 0) {
             await this.repository.delete(id);

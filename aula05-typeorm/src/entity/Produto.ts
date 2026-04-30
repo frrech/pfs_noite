@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, OneToMany } from "typeorm"
 import { Categoria } from "./Categoria";
+import { Pedidos } from "./Pedidos";
 
 @Entity()
 export class Produto {
@@ -16,9 +17,12 @@ export class Produto {
     @Column({ type: "decimal", precision: 10, scale: 2 })
     quantidade: number;
 
-    @OneToMany(() => Categoria, categoria => categoria.produtos)
+    @ManyToOne(() => Categoria, categoria => categoria.produtos)
     @JoinColumn({ name: "categoria_id" })
     categoria: Categoria;
+
+    @OneToMany(() => Pedidos, pedidos => pedidos.produto)
+    pedidos: Pedidos[];
 
     constructor(nome: string, preco: number, categoria: Categoria, quantidade: number) {
         this.nome = nome;

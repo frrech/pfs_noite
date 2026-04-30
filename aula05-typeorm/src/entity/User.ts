@@ -1,5 +1,5 @@
 import { Pedidos } from "./Pedidos";
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 
 @Entity()
 export class User {
@@ -10,15 +10,19 @@ export class User {
     @Column()
     name: string
 
-    @Column()
+    @Column({ unique: true })
     email: string
 
-    @Column()
+    @OneToMany(() => Pedidos, pedidos => pedidos.user)
     pedidos: Pedidos[];
     
-    constructor(name: string, email: string, pedidos: Pedidos[]) {
+    @Column()
+    password: string;
+
+    constructor(name: string, email: string, password: string, pedidos: Pedidos[]) {
         this.name = name;
         this.email = email;
+        this.password = password;
         this.pedidos = pedidos;
     }
 }
