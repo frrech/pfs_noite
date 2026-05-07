@@ -13,7 +13,7 @@ export class UserController {
     public async adicionarUser(req: any, res: any): Promise<void> {
         await handleRequest(req, res, async () => {
             const { name, email, pedidos } = req.body;
-            const user = new User(name, email, pedidos as Pedidos[]);
+            const user = new User(name, email, "", pedidos as Pedidos[]); // Senha vazia, pois não é tratada aqui
             await this.userService.adicionarUser(user);
             console.log("Usuário adicionado com sucesso.");
         });
