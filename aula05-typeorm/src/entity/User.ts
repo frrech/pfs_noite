@@ -16,7 +16,7 @@ export class User {
     @OneToMany(() => Pedidos, pedidos => pedidos.user)
     pedidos: Pedidos[];
     
-    @Column()
+    @Column({ select: false }) // Exclui a senha das consultas por padrão
     password: string;
 
     constructor(name: string, email: string, password: string, pedidos: Pedidos[]) {

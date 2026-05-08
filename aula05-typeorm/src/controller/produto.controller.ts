@@ -12,7 +12,11 @@ export class ProdutoController {
     public async adicionarProduto(req: any, res: any): Promise<void> {
         await handleRequest(req, res, async () => {
             const { nome, preco, categoria, quantidade } = req.body;
-            const produto = new Produto(nome, preco, categoria, quantidade);
+            const produto = new Produto();
+            produto.nome = nome;
+            produto.preco = preco;
+            produto.categoria = categoria;
+            produto.quantidade = quantidade;
             await this.produtoService.adicionarProduto(produto);
             console.log("Produto adicionado com sucesso.");
         });

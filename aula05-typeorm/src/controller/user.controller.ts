@@ -2,6 +2,7 @@ import { UserService } from "../service/user.service";
 import { User } from "../entity/User";
 import { Pedidos } from "../entity/Pedidos";
 import { handleRequest } from "../utils/request_handler";
+import { ValidationError } from "../error/validation_error";
 
 export class UserController {
     private userService: UserService;

@@ -10,8 +10,22 @@ export class UserService {
         this.userRepository = userRepository;
     }
 
-    private verificarUser(name: string, email: string): boolean {
-        return name.trim() === "" || email.trim() === "";
+    private verificarUser(user: User): boolean {
+        const { name, email, password } = user;
+        //verificar se o email está duplicado
+        if (email.trim() !== "") {
+            const existingUser = this.userRepository.findByEmail(email);
+            if (existingUser) {
+                throw new ValidationError("Email já cadastrado", 400);
+            }
+            return name.trim() === "" || email.trim() === "";
+        }
+        //verificar se a senha está certa
+        if (password.length < 6) {
+            throw new ValidationError("A senha deve ter pelo menos 6 caracteres.", 400);
+        }
+        //verificar se a senha, o nome ou o email estão vazios
+        return name.trim() === "" || email.trim() === "" || password.trim() === "";
     }
 
     private validateId(id: number): void {
@@ -29,9 +43,7 @@ export class UserService {
     }
 
     public async adicionarUser(user: User): Promise<void> {
-        const { name, email } = user;
-
-        if (this.verificarUser(name, email)) {
+        if (this.verificarUser(user)) {
             throw new ValidationError("Nome e email são obrigatórios");
         }
 
@@ -56,8 +68,7 @@ export class UserService {
     public async atualizarUser(id: number, user: User): Promise<void> {
         this.validateId(id);
         await this.validateUserExists(id);
-        const { name, email } = user;
-        if (this.verificarUser(name, email)) {
+        if (this.verificarUser(user)) {
             throw new ValidationError("Nome e email são obrigatórios");
         }
         await this.userRepository.update(id, user);
@@ -66,7 +77,7 @@ export class UserService {
     public async adicionarPedido(userId: number, pedido: Pedidos): Promise<void> {
         this.validateId(userId);
         await this.validateUserExists(userId);
-        if (!pedido || !pedido.produto) {
+        if (!pedido || !pedido.produtos) {
             throw new ValidationError("O pedido deve conter pelo menos um produto.", 400);
         }
         if (pedido.total <= 0) {

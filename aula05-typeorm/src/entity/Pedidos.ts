@@ -1,31 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, ManyToOne, JoinColumn } from "typeorm";
 import { User } from "./User";
-import {Produto } from "./Produto";
+import { Produto } from "./Produto";
 
 @Entity()
 export class Pedidos {
-
     @PrimaryGeneratedColumn()
-    id: number
+    id: number;
 
     @Column()
-    descricao: string
+    descricao: string;
 
-    @ManyToOne(() => Produto, produto => produto.pedidos)
-    @JoinColumn({ name: "produto_id" })
-    produto: Produto;
+    @ManyToMany(() => Produto, produto => produto.pedidos)
+    @JoinTable({ name: "pedido_produtos" })
+    produtos: Produto[];
 
     @ManyToOne(() => User, user => user.pedidos)
     @JoinColumn({ name: "user_id" })
     user: User;
 
-    @Column({ type: "decimal", precision: 10, scale: 2 })
+    @Column({ type: "decimal", precision: 10, scale: 2, default: 0 })
     total: number;
 
-    constructor(descricao: string, user: User, produto: Produto) {
-        this.descricao = descricao;
-        this.user = user;
-        this.produto = produto;
-        this.total = produto.preco * produto.quantidade;
-    }
+    constructor() {}
 }

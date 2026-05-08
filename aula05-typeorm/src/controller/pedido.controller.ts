@@ -1,8 +1,7 @@
 import { PedidoService } from "../service/pedido.service";
 import { Pedidos } from "../entity/Pedidos";
-import { User } from "../entity/User";
-import { Produto } from "../entity/Produto";
 import { handleRequest } from "../utils/request_handler";
+import { ValidationError } from "../error/validation_error";
 
 export class PedidoController {
     private pedidoService: PedidoService;
@@ -13,11 +12,21 @@ export class PedidoController {
 
     public async adicionarPedido(req: any, res: any): Promise<void> {
         await handleRequest(req, res, async () => {
-            const { produto, user, descricao } = req.body;
-            const pedido = new Pedidos(descricao, user as User, produto as Produto);
-            await this.pedidoService.adicionarPedido(pedido);
-            console.log("Pedido adicionado com sucesso.");
-        });
+            const { descricao, produtos } = req.body;
+            
+            if (!produtos || !Array.isArray(produtos) || produtos.length === 0) {
+                throw new ValidationError("Produtos são obrigatórios e deve haver pelo menos um.", 400);
+            }
+            
+            const user = req.user;
+            if (!user) {
+                throw new ValidationError("Usuário não autenticado.", 401);
+            }
+            
+            // Pass raw product IDs to service, let it fetch from DB
+            await this.pedidoService.adicionarPedido(descricao, user, produtos);
+            return { message: "Pedido adicionado com sucesso" };
+        }, 201);
     }
 
     public async listarPedidos(req: any, res: any): Promise<void> {

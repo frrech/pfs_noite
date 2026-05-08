@@ -1,17 +1,17 @@
-import {PedidoRepository} from "../repository/pedido.repository";
-import {Pedidos} from "../entity/Pedidos";
-import {ValidationError} from "../error/validation_error";
+import { PedidoRepository } from "../repository/pedido.repository";
+import { ProdutoRepository } from "../repository/produto.repository";
+import { Pedidos } from "../entity/Pedidos";
+import { ValidationError } from "../error/validation_error";
 import { Produto } from "../entity/Produto";
+import { User } from "../entity/User";
 
 export class PedidoService {
     private pedidoRepository: PedidoRepository;
+    private produtoRepository: ProdutoRepository;
 
-    constructor(pedidoRepository: PedidoRepository) {
+    constructor(pedidoRepository: PedidoRepository, produtoRepository: ProdutoRepository) {
         this.pedidoRepository = pedidoRepository;
-    }
-
-    private verificarPedido(produto: Produto): boolean {
-        return !produto || !(produto instanceof Produto) || produto.nome.trim() === "";
+        this.produtoRepository = produtoRepository;
     }
 
     private validateId(id: number): void {
@@ -28,40 +28,59 @@ export class PedidoService {
         return pedido;
     }
 
-    public async adicionarPedido(pedido: Pedidos): Promise<void> {
-        const { produto } = pedido;
-        if (this.verificarPedido(produto)) {
-            throw new ValidationError("Produto é obrigatório", 400); // Bad Request
+    // Fetch real Produto entities from database
+    private async getProdutosFromIds(produtoIds: number[]): Promise<Produto[]> {
+        const produtos: Produto[] = [];
+        for (const id of produtoIds) {
+            const produto = await this.produtoRepository.findById(id);
+            if (!produto) {
+                throw new ValidationError(`Produto com id ${id} não encontrado.`, 404);
+            }
+            produtos.push(produto);
         }
+        return produtos;
+    }
+
+    public async adicionarPedido(descricao: string, user: User, produtoIds: any[]): Promise<void> {
+        if (!produtoIds || !Array.isArray(produtoIds) || produtoIds.length === 0) {
+            throw new ValidationError("Produtos são obrigatórios e deve haver pelo menos um.", 400);
+        }
+
+        // Fetch managed Produto entities from database
+        const produtos = await this.getProdutosFromIds(
+            produtoIds.map(p => typeof p === 'object' ? p.id : p)
+        );
+
+        // Create pedido with managed entities
+        const pedido = new Pedidos();
+        pedido.descricao = descricao;
+        pedido.user = user;
+        pedido.produtos = produtos;
+        
+        // Calculate total BEFORE saving
+        pedido.total = produtos.reduce((sum, p) => sum + (Number(p.preco) * Number(p.quantidade)), 0);
+
         await this.pedidoRepository.save(pedido);
     }
 
-    public async listarPedidos() {
+    public async listarPedidos(): Promise<Pedidos[]> {
         return await this.pedidoRepository.findAll();
     }
 
-    public async buscarPedidoPorId(id: number) {
+    public async buscarPedidoPorId(id: number): Promise<Pedidos> {
         this.validateId(id);
-        const pedido = await this.pedidoRepository.findById(id);
-        await this.validatePedidoExists(id);
-        return pedido;
+        return await this.validatePedidoExists(id);
     }
 
     public async removerPedido(id: number): Promise<void> {
         this.validateId(id);
         await this.validatePedidoExists(id);
-        const pedido = await this.pedidoRepository.findById(id);
-        await this.pedidoRepository.delete(pedido.id);
+        await this.pedidoRepository.delete(id);
     }
-
 
     public async atualizarPedido(id: number, pedido: Pedidos): Promise<void> {
         this.validateId(id);
         await this.validatePedidoExists(id);
-        const existingPedido = await this.pedidoRepository.findById(id);
-        if (!existingPedido) {
-            throw new ValidationError(`Pedido com id ${id} não encontrado.`, 404); // NOT FOUND
-        }
         await this.pedidoRepository.update(id, pedido);
     }
 }

@@ -1,18 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany } from "typeorm";
 import { Categoria } from "./Categoria";
 import { Pedidos } from "./Pedidos";
 
 @Entity()
 export class Produto {
-
     @PrimaryGeneratedColumn()
-    id: number
+    id: number;
 
     @Column()
-    nome: string
+    nome: string;
 
     @Column({ type: 'double precision' })
-    preco: number
+    preco: number;
 
     @Column({ type: "decimal", precision: 10, scale: 2 })
     quantidade: number;
@@ -21,13 +20,6 @@ export class Produto {
     @JoinColumn({ name: "categoria_id" })
     categoria: Categoria;
 
-    @OneToMany(() => Pedidos, pedidos => pedidos.produto)
+    @ManyToMany(() => Pedidos, pedido => pedido.produtos)
     pedidos: Pedidos[];
-
-    constructor(nome: string, preco: number, categoria: Categoria, quantidade: number) {
-        this.nome = nome;
-        this.preco = preco;
-        this.categoria = categoria;
-        this.quantidade = quantidade;
-    }
 }

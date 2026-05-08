@@ -63,11 +63,10 @@ export class Injector {
     }
 
     public static createPedidoRouter(): PedidoRouter {
-        return this.createRouter(
-            PedidoRepository,
-            PedidoService,
-            PedidoController,
-            PedidoRouter
-        );
+        const produtoRepository = new ProdutoRepository();
+        const pedidoRepository = new PedidoRepository();
+        const pedidoService = new PedidoService(pedidoRepository, produtoRepository);
+        const pedidoController = new PedidoController(pedidoService);
+        return new PedidoRouter(pedidoController);
     }
 }
