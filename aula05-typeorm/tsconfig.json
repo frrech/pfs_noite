@@ -4,9 +4,10 @@
          "es2021"
       ],
       "target": "es2021",
-      "module": "commonjs",
-      "moduleResolution": "node",
+      "module": "node16",
+      "moduleResolution": "node16",
       "outDir": "./build",
+      "rootDir": "./src",
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
       "sourceMap": true
