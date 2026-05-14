@@ -99,7 +99,7 @@ npm run dev
 ## Exemplo geral
 
 ```powershell
-cd c:\Users\03676283090\Documents\projetos\pfs_noite\aula05-typeorm
+cd c:\Users\Usuario\Documents\projetos\pfs_noite\aula05-typeorm
 npm install
 npm run start
 ```
